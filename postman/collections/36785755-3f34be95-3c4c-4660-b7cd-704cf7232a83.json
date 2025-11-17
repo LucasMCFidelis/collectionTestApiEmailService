@@ -787,7 +787,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "60bb183e-980c-46e6-b496-043fb38dfffb",
+				"id": "00759240-f12c-4d23-8c04-12b4a74f8f1a",
 				"type": "text/javascript",
 				"packages": {},
 				"requests": {},
@@ -800,7 +800,7 @@
 					"\r",
 					"const emailsToTest = [\r",
 					"    \"fidelis.lucasm@gmail.com\",\r",
-					"    \"fidelis.lucas@aluno.uepb.edu.com\"\r",
+					"    \"fidelis.lucas@aluno.uepb.edu.br\"\r",
 					"]\r",
 					"\r",
 					"pm.collectionVariables.set(\"emailsToTest\", JSON.stringify(emailsToTest));\r",
@@ -906,7 +906,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "a17a5b39-99a9-48c0-8f1a-a1a499894bdb",
+				"id": "ebd934ba-4cc4-4eab-8d97-c6babfd54f73",
 				"type": "text/javascript",
 				"packages": {},
 				"requests": {},
