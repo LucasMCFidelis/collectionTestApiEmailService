@@ -942,6 +942,10 @@
 		{
 			"key": "emailToTest",
 			"value": ""
+		},
+		{
+			"key": "emailToRecoveryCode",
+			"value": ""
 		}
 	]
 }
