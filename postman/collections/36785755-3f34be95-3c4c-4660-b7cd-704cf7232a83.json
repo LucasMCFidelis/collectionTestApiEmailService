@@ -943,18 +943,6 @@
 		{
 			"key": "emailToTest",
 			"value": ""
-		},
-		{
-			"key": "emailToRecoveryCode",
-			"value": ""
-		},
-		{
-			"key": "userTokenToRecoveryCode",
-			"value": ""
-		},
-		{
-			"key": "userIdToRecoveryCode",
-			"value": ""
 		}
 	]
 }
