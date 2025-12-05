@@ -787,7 +787,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "00759240-f12c-4d23-8c04-12b4a74f8f1a",
+				"id": "f7e4af1f-906b-4d42-bf55-83923438fbc8",
 				"type": "text/javascript",
 				"packages": {},
 				"requests": {},
@@ -827,6 +827,7 @@
 					"    const password = \"{Password@123}\"\r",
 					"    const emails = JSON.parse(pm.collectionVariables.get(\"emailsToTest\"));\r",
 					"    const email = emails[Math.floor(Math.random() * emails.length)]\r",
+					"    console.log(email)\r",
 					"\r",
 					"    // Limite de tentativas\r",
 					"    if (attempt > 5) {\r",
@@ -906,7 +907,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "ebd934ba-4cc4-4eab-8d97-c6babfd54f73",
+				"id": "3f7d1179-1cf2-4306-ae12-7ccceaf880b8",
 				"type": "text/javascript",
 				"packages": {},
 				"requests": {},
