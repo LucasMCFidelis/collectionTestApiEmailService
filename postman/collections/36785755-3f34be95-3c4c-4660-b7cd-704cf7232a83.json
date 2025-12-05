@@ -787,7 +787,7 @@
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "f7e4af1f-906b-4d42-bf55-83923438fbc8",
+				"id": "6b82e5c6-8cef-43da-b700-0fc07cf3e050",
 				"type": "text/javascript",
 				"packages": {},
 				"requests": {},
@@ -824,7 +824,7 @@
 					"}\r",
 					"\r",
 					"function createSimpleUserRequest(attempt = 1) {\r",
-					"    const password = \"{Password@123}\"\r",
+					"    const password = \"Password@123\"\r",
 					"    const emails = JSON.parse(pm.collectionVariables.get(\"emailsToTest\"));\r",
 					"    const email = emails[Math.floor(Math.random() * emails.length)]\r",
 					"    console.log(email)\r",
@@ -907,7 +907,7 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "3f7d1179-1cf2-4306-ae12-7ccceaf880b8",
+				"id": "c1c2a0a6-19e6-48ca-a0d8-85e480efd5e5",
 				"type": "text/javascript",
 				"packages": {},
 				"requests": {},
