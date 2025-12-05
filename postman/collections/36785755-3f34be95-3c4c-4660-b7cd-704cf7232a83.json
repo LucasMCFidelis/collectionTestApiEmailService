@@ -947,6 +947,14 @@
 		{
 			"key": "emailToRecoveryCode",
 			"value": ""
+		},
+		{
+			"key": "userTokenToRecoveryCode",
+			"value": ""
+		},
+		{
+			"key": "userIdToRecoveryCode",
+			"value": ""
 		}
 	]
 }
