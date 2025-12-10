@@ -39,8 +39,6 @@
 									"\r",
 									"        const recoveryCode = pm.response.json().recoveryCode;\r",
 									"\r",
-									"        pm.environment.set(\"recoveryCode\", recoveryCode);\r",
-									"        console.log(\"Recovery code capturado:\", recoveryCode);\r",
 									"        pm.expect(recoveryCode).to.be.a(\"string\");\r",
 									"    });\r",
 									"} else {\r",
