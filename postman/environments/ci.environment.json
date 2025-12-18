@@ -1,0 +1,21 @@
+{
+  "id": "ci-env",
+  "name": "CI Environment",
+  "values": [
+    {
+      "key": "email_service_url",
+      "value": "http://localhost:3000/emails",
+      "enabled": true
+    },
+    {
+      "key": "user_service_url",
+      "value": "http://localhost:8089/users",
+      "enabled": true
+    },
+    {
+      "key": "useMock",
+      "value": "true",
+      "enabled": true
+    }
+  ]
+}

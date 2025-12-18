@@ -1,0 +1,17 @@
+{
+  "id": "local-real-env",
+  "name": "Local Real Integration",
+  "values": [
+    {
+      "key": "email_service_url",
+      "value": "http://localhost:3000/emails",
+      "enabled": true
+    },
+    {
+      "key": "user_service_url",
+      "value": "http://localhost:3333/users",
+      "enabled": true
+    },
+    { "key": "useMock", "value": "false", "enabled": true }
+  ]
+}
