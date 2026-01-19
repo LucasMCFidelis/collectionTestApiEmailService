@@ -1,1024 +1,1099 @@
 {
-	"info": {
-		"_postman_id": "3f34be95-3c4c-4660-b7cd-704cf7232a83",
-		"name": "emailService",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "36785755",
-		"_collection_link": "https://projeto-catlogo-de-eventos.postman.co/workspace/Cat%C3%A1logo-de-eventos~cbf513f9-9747-45cf-a397-52cda2cab29c/collection/36785755-3f34be95-3c4c-4660-b7cd-704cf7232a83?action=share&source=collection_link&creator=36785755"
-	},
-	"item": [
-		{
-			"name": "recovery",
-			"item": [
-				{
-					"name": "Envio de Recovery Code",
-					"item": [
-						{
-							"name": "Enviar recovery code",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"function use(fnName) {\r",
-											"    const raw = pm.collectionVariables.get(fnName);\r",
-											"    if (!raw) throw new Error(`Função não encontrada: ${fnName}`);\r",
-											"    return eval(`(${raw})`);\r",
-											"}\r",
-											"\r",
-											"const deleteSimpleUserRequest = use(\"deleteSimpleUserRequest\");\r",
-											"\r",
-											"pm.test(\"Status code deve ser 200\", function () {\r",
-											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Mensagem deve indicar envio do código\", function () {\r",
-											"    const body = pm.response.json();\r",
-											"    pm.expect(body.message.toLowerCase())\r",
-											"      .to.include(\"código de recuperação enviado\");\r",
-											"});\r",
-											"\r",
-											"deleteSimpleUserRequest(\r",
-											"    pm.collectionVariables.get(\"userTokenToRecoveryCode\"),\r",
-											"    pm.collectionVariables.get(\"userIdToRecoveryCode\")\r",
-											");\r",
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"function use(fnName) {\r",
-											"    const raw = pm.collectionVariables.get(fnName);\r",
-											"    if (!raw) throw new Error(`Função não encontrada: ${fnName}`);\r",
-											"    return eval(`(${raw})`);\r",
-											"}\r",
-											"\r",
-											"const createSimpleUserRequest = use('createSimpleUserRequest');\r",
-											"\r",
-											"createSimpleUserRequest()"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "X-Mock-Scenario",
-										"value": "SUCCESS_GET_USER",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"{{emailToRecoveryCode}}\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{email_service_url}}/send-recovery-code",
-									"host": [
-										"{{email_service_url}}"
-									],
-									"path": [
-										"send-recovery-code"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Enviar recovery code para email invalido",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code deve ser 400\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a propriedade message\", function () {\r",
-											"    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
-											"});\r",
-											"\r",
-											"const expectMessage = \"Email deve ser um email válido\".toLowerCase()\r",
-											"pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
-											"    pm.expect(pm.response.text()).to.include(expectMessage);\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{userToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"lucasm241301@.com\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{email_service_url}}/send-recovery-code",
-									"host": [
-										"{{email_service_url}}"
-									],
-									"path": [
-										"send-recovery-code"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Enviar recovery code para email não cadastrado",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code deve ser 404\", function () {\r",
-											"    pm.response.to.have.status(404);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a propriedade message\", function () {\r",
-											"    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
-											"});\r",
-											"\r",
-											"const expectMessage = \"Usuário não encontrado\".toLowerCase()\r",
-											"pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
-											"    pm.expect(pm.response.text()).to.include(expectMessage);\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{userToken}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "POST",
-								"header": [
-									{
-										"key": "X-Mock-Scenario",
-										"value": "USER_NOT_FOUND",
-										"type": "text"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"email\": \"lucasm@gmail.com\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{email_service_url}}/send-recovery-code",
-									"host": [
-										"{{email_service_url}}"
-									],
-									"path": [
-										"send-recovery-code"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Enviar recovery code  sem passar o email",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code deve ser 400\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a propriedade message\", function () {\r",
-											"    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
-											"});\r",
-											"\r",
-											"const expectMessage = \"Email é obrigatório\".toLowerCase();\r",
-											"pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
-											"    pm.expect(pm.response.text()).to.include(expectMessage);\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{email_service_url}}/send-recovery-code",
-									"host": [
-										"{{email_service_url}}"
-									],
-									"path": [
-										"send-recovery-code"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Validação de Recovery Code",
-					"item": [
-						{
-							"name": "Validar Recovery Code com código invalido",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code deve ser 400\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a propriedade message\", function () {\r",
-											"    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
-											"    pm.expect(pm.response.text()).to.include((\"código de recuperação inválido\"));\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"userEmail\": \"lucasm241301@gmail.com\",\r\n    \"recoveryCode\": \"220Sdz\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{email_service_url}}/validate-recovery-code",
-									"host": [
-										"{{email_service_url}}"
-									],
-									"path": [
-										"validate-recovery-code"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Validar Recovery Code com email invalido",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code deve ser 400\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a propriedade message\", function () {\r",
-											"    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
-											"    pm.expect(pm.response.text()).to.include((\"Email deve ser um email válido\").toLowerCase());\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"userEmail\": \"lucasm2413il.com\",\r\n    \"recoveryCode\": \"F8Eiyo\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{email_service_url}}/validate-recovery-code",
-									"host": [
-										"{{email_service_url}}"
-									],
-									"path": [
-										"validate-recovery-code"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Validar Recovery Code com email não cadastrado",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code deve ser 400\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a propriedade message\", function () {\r",
-											"    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
-											"    pm.expect(pm.response.text()).to.include((\"Código de recuperação inválido\").toLowerCase());\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"userEmail\": \"teste1234@gmail.com\",\r\n    \"recoveryCode\": \"F8Eiyo\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{email_service_url}}/validate-recovery-code",
-									"host": [
-										"{{email_service_url}}"
-									],
-									"path": [
-										"validate-recovery-code"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Validar Recovery Code sem passar email",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code deve ser 400\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});\r",
-											"\r",
-											"\r",
-											"pm.test(\"Deve validar a propriedade message\", function () {\r",
-											"    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
-											"    pm.expect(pm.response.text()).to.include((\"Email é obrigatório\").toLowerCase());\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"recoveryCode\": \"220Sdz\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{email_service_url}}/validate-recovery-code",
-									"host": [
-										"{{email_service_url}}"
-									],
-									"path": [
-										"validate-recovery-code"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Validar Recovery Code com código valido",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"function use(fnName) {\r",
-											"    const raw = pm.collectionVariables.get(fnName);\r",
-											"    if (!raw) throw new Error(`Função não encontrada: ${fnName}`);\r",
-											"    return eval(`(${raw})`);\r",
-											"}\r",
-											"const deleteSimpleUserRequest = use(\"deleteSimpleUserRequest\");\r",
-											"\r",
-											"if (pm.collectionVariables.get(\"api_env\") !== \"production\") {\r",
-											"    pm.test(\"Status code deve ser 200\", function () {\r",
-											"        pm.response.to.have.status(200);\r",
-											"    });\r",
-											"\r",
-											"    pm.test(\"Deve validar a propriedade message\", function () {\r",
-											"        pm.expect(pm.response.json()).to.have.property(\"message\");\r",
-											"    });\r",
-											"\r",
-											"    pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
-											"        pm.expect(pm.response.text()).to.include((\"Código de recuperação válido\"));\r",
-											"    });\r",
-											"} else {\r",
-											"    console.warn(\"Não é possível testar em produção\")\r",
-											"}\r",
-											"\r",
-											"deleteSimpleUserRequest(pm.collectionVariables.get(\"userTokenToRecoveryCode\"), pm.collectionVariables.get(\"userIdToRecoveryCode\"))"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"function use(fnName) {\r",
-											"    const raw = pm.collectionVariables.get(fnName);\r",
-											"    if (!raw) throw new Error(`Função não encontrada: ${fnName}`);\r",
-											"    return eval(`(${raw})`);\r",
-											"}\r",
-											"\r",
-											"const createSimpleUserRequest = use('createSimpleUserRequest');\r",
-											"const sendRecoveryCodeRequest = use('sendRecoveryCodeRequest');\r",
-											"\r",
-											"createSimpleUserRequest()\r",
-											"const emailToRecoveryCode = pm.collectionVariables.get(\"emailToRecoveryCode\")\r",
-											"sendRecoveryCodeRequest(emailToRecoveryCode, \"SUCCESS_GET_USER\")"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"userEmail\": \"{{emailToRecoveryCode}}\",\r\n    \"recoveryCode\": \"{{recoveryCode}}\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{email_service_url}}/validate-recovery-code",
-									"host": [
-										"{{email_service_url}}"
-									],
-									"path": [
-										"validate-recovery-code"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Validar Recovery Code sem passar código",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code deve ser 400\", function () {\r",
-											"    pm.response.to.have.status(400);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a propriedade message\", function () {\r",
-											"    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
-											"});\r",
-											"\r",
-											"pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
-											"    pm.expect(pm.response.text()).to.include((\"recovery code é obrigatório\"));\r",
-											"});"
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								},
-								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript",
-										"packages": {},
-										"requests": {}
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\r\n    \"userEmail\": \"lucasm241301@gmail.com\"\r\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{email_service_url}}/validate-recovery-code",
-									"host": [
-										"{{email_service_url}}"
-									],
-									"path": [
-										"validate-recovery-code"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {},
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {},
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				}
-			],
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {},
-						"exec": [
-							""
-						]
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"packages": {},
-						"requests": {},
-						"exec": [
-							""
-						]
-					}
-				}
-			]
-		},
-		{
-			"name": "security-smoke",
-			"item": [
-				{
-					"name": "Enviar recovery code PRODUCTION",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code deve ser 200\", function () {\r",
-									"    pm.response.to.have.status(200);\r",
-									"});\r",
-									"\r",
-									"pm.test(\"Não deve expor recoveryCode em ambiente production\", function () {\r",
-									"    const body = pm.response.json();\r",
-									"    pm.expect(body).to.not.have.property(\"recoveryCode\");\r",
-									"});\r",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						},
-						{
-							"listen": "prerequest",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-Mock-Scenario",
-								"value": "SUCCESS_GET_USER",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"{{emailSecurityTest}}\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{email_service_url}}/send-recovery-code",
-							"host": [
-								"{{email_service_url}}"
-							],
-							"path": [
-								"send-recovery-code"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"requests": {},
-				"exec": [
-					"function use(fnName) {\r",
-					"    const raw = pm.collectionVariables.get(fnName);\r",
-					"    if (!raw) throw new Error(`Função não encontrada: ${fnName}`);\r",
-					"    return eval(`(${raw})`);\r",
-					"}\r",
-					"\r",
-					"const emailsToTest = [\r",
-					"    \"fidelis.lucasm@gmail.com\",\r",
-					"    \"fidelis.lucas@aluno.uepb.edu.br\"\r",
-					"]\r",
-					"\r",
-					"pm.collectionVariables.set(\"emailsToTest\", JSON.stringify(emailsToTest));\r",
-					"\r",
-					"function sendRecoveryCodeRequest(email, scenario) {\r",
-					"    pm.sendRequest({\r",
-					"        url: `${pm.environment.get(\"email_service_url\")}/send-recovery-code`,\r",
-					"        method: \"POST\",\r",
-					"        header: {\r",
-					"            \"Content-Type\": \"application/json\",\r",
-					"            ...(pm.environment.get(\"useMock\") === \"true\" && scenario\r",
-					"                ? { \"x-mock-scenario\": scenario }\r",
-					"                : {})\r",
-					"        },\r",
-					"        body: {\r",
-					"            mode: \"raw\",\r",
-					"            raw: JSON.stringify({ email }),\r",
-					"            options: {\r",
-					"                raw: {\r",
-					"                    language: \"json\"\r",
-					"                }\r",
-					"            }\r",
-					"        }\r",
-					"    }, (err, res) => {\r",
-					"        const json = res.json();\r",
-					"        pm.collectionVariables.set(\"emailToRecoveryCode\", email);\r",
-					"        if (json?.recoveryCode) {\r",
-					"            pm.collectionVariables.set(\"recoveryCode\", json.recoveryCode);\r",
-					"        }\r",
-					"    })\r",
-					"}\r",
-					"\r",
-					"function createSimpleUserRequest(attempt = 1) {\r",
-					"    const password = \"Password@123\"\r",
-					"    const emails = JSON.parse(pm.collectionVariables.get(\"emailsToTest\"));\r",
-					"    const email = emails[Math.floor(Math.random() * emails.length)]\r",
-					"    console.log(email)\r",
-					"\r",
-					"    if (pm.environment.get(\"useMock\") === \"true\") {\r",
-					"        console.log(\"🟡 Modo mock ativo — pulando criação real de usuário\");\r",
-					"\r",
-					"        pm.collectionVariables.set(\"emailToRecoveryCode\", email);\r",
-					"\r",
-					"        return;\r",
-					"    }\r",
-					"\r",
-					"    // Limite de tentativas\r",
-					"    if (attempt > 5) {\r",
-					"        console.error(\"❌ Não foi possível criar usuário após 5 tentativas.\");\r",
-					"        return;\r",
-					"    }\r",
-					"\r",
-					"    console.log(`🔄 Tentativa ${attempt} de criar usuário simples...`);\r",
-					"\r",
-					"    pm.sendRequest(\r",
-					"        {\r",
-					"            url: pm.environment.get(\"user_service_url\"),\r",
-					"            method: \"POST\",\r",
-					"            header: { \"Content-Type\": \"application/json\" },\r",
-					"            body: {\r",
-					"                mode: \"raw\",\r",
-					"                raw: JSON.stringify({\r",
-					"                    firstName: pm.variables.replaceIn(\"{{$randomWord}}\"),\r",
-					"                    lastName: `${pm.variables.replaceIn(\"{{$randomWord}}\")} ${pm.variables.replaceIn(\"{{$randomWord}}\")}`,\r",
-					"                    email,\r",
-					"                    password,\r",
-					"                }),\r",
-					"            },\r",
-					"        },\r",
-					"        (err, res) => {\r",
-					"            if (err) {\r",
-					"                console.warn(`⚠ Erro na tentativa ${attempt}, tentando novamente...`);\r",
-					"                return createSimpleUserRequest(attempt + 1);\r",
-					"            }\r",
-					"\r",
-					"            const json = res.json();\r",
-					"            if (json?.userId) {\r",
-					"                pm.collectionVariables.set(\"userTokenToRecoveryCode\", json.userToken);\r",
-					"                pm.collectionVariables.set(\"userIdToRecoveryCode\", json.userId);\r",
-					"                pm.collectionVariables.set(\"emailToRecoveryCode\", json.email);\r",
-					"                return\r",
-					"            }\r",
-					"            // Tentativa falhou mesmo sem erro → repetir\r",
-					"            console.warn(`⚠ Tentativa ${attempt} falhou, tentando novamente...`);\r",
-					"            return createSimpleUserRequest(attempt + 1);\r",
-					"        }\r",
-					"    );\r",
-					"}\r",
-					"\r",
-					"function deleteSimpleUserRequest(token, userId) {\r",
-					"    if (pm.environment.get(\"useMock\") === \"true\") {\r",
-					"        console.log(\"🟡 Modo mock ativo — pulando delete de usuário\");\r",
-					"        return;\r",
-					"    }\r",
-					"    if (!token || !userId) {\r",
-					"        console.warn(\"⚠ Token ou userId não informado — ignorando\");\r",
-					"        return;\r",
-					"    }\r",
-					"\r",
-					"    pm.sendRequest(\r",
-					"        {\r",
-					"            url: `${pm.environment.get(\"user_service_url\")}?userId=${userId}`,\r",
-					"            method: \"DELETE\",\r",
-					"            header: {\r",
-					"                \"Authorization\": `Bearer ${token}`,\r",
-					"            },\r",
-					"        },\r",
-					"        (err, res) => {\r",
-					"            if (err) {\r",
-					"                console.error(\"❌ Erro no DELETE:\", err);\r",
-					"                return;\r",
-					"            }\r",
-					"            pm.collectionVariables.unset(\"userRecentCadastreId\");\r",
-					"            pm.collectionVariables.unset(\"userRecentCadastreEmail\");\r",
-					"            pm.collectionVariables.unset(\"userRecentCadastrePassword\");\r",
-					"            pm.collectionVariables.unset(\"userRecentCadastreToken\");\r",
-					"        }\r",
-					"    );\r",
-					"}\r",
-					"\r",
-					"pm.collectionVariables.set(sendRecoveryCodeRequest.name, sendRecoveryCodeRequest.toString())\r",
-					"pm.collectionVariables.set(createSimpleUserRequest.name, createSimpleUserRequest.toString())\r",
-					"pm.collectionVariables.set(deleteSimpleUserRequest.name, deleteSimpleUserRequest.toString())"
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"packages": {},
-				"requests": {},
-				"exec": [
-					"// Detecta ambiente\r",
-					"pm.collectionVariables.set(\r",
-					"  \"api_env\",\r",
-					"  pm.response.headers.get(\"email-service-environment\") || \"development\"\r",
-					");"
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "sendRecoveryCodeRequest",
-			"value": ""
-		},
-		{
-			"key": "createSimpleUserRequest",
-			"value": ""
-		},
-		{
-			"key": "deleteSimpleUserRequest",
-			"value": ""
-		},
-		{
-			"key": "emailsToTest",
-			"value": ""
-		},
-		{
-			"key": "api_env",
-			"value": ""
-		},
-		{
-			"key": "emailToTest",
-			"value": ""
-		},
-		{
-			"key": "emailToRecoveryCode",
-			"value": ""
-		},
-		{
-			"key": "userTokenToRecoveryCode",
-			"value": ""
-		},
-		{
-			"key": "userIdToRecoveryCode",
-			"value": ""
-		},
-		{
-			"key": "recoveryCode",
-			"value": ""
-		}
-	]
+  "info": {
+    "_postman_id": "3f34be95-3c4c-4660-b7cd-704cf7232a83",
+    "name": "emailService",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "36785755",
+    "_collection_link": "https://go.postman.co/collection/36785755-3f34be95-3c4c-4660-b7cd-704cf7232a83?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "recovery",
+      "item": [
+        {
+          "name": "Envio de Recovery Code",
+          "item": [
+            {
+              "name": "Enviar recovery code",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "function use(fnName) {\r",
+                      "    const raw = pm.collectionVariables.get(fnName);\r",
+                      "    if (!raw) throw new Error(`Função não encontrada: ${fnName}`);\r",
+                      "    return eval(`(${raw})`);\r",
+                      "}\r",
+                      "\r",
+                      "const deleteSimpleUserRequest = use(\"deleteSimpleUserRequest\");\r",
+                      "\r",
+                      "pm.test(\"Status code deve ser 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Mensagem deve indicar envio do código\", function () {\r",
+                      "    const body = pm.response.json();\r",
+                      "    pm.expect(body.message.toLowerCase())\r",
+                      "      .to.include(\"código de recuperação enviado\");\r",
+                      "});\r",
+                      "\r",
+                      "deleteSimpleUserRequest(\r",
+                      "    pm.collectionVariables.get(\"userTokenToRecoveryCode\"),\r",
+                      "    pm.collectionVariables.get(\"userIdToRecoveryCode\")\r",
+                      ");\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "function use(fnName) {\r",
+                      "    const raw = pm.collectionVariables.get(fnName);\r",
+                      "    if (!raw) throw new Error(`Função não encontrada: ${fnName}`);\r",
+                      "    return eval(`(${raw})`);\r",
+                      "}\r",
+                      "\r",
+                      "const createSimpleUserRequest = use('createSimpleUserRequest');\r",
+                      "\r",
+                      "createSimpleUserRequest()"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Mock-Scenario",
+                    "value": "SUCCESS_GET_USER",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"{{emailToRecoveryCode}}\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/send-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "send-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Enviar recovery code para email invalido",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a propriedade message\", function () {\r",
+                      "    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "const expectMessage = \"Email deve ser um email válido\".toLowerCase()\r",
+                      "pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(expectMessage);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"lucasm241301@.com\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/send-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "send-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Enviar recovery code para email não cadastrado",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 404\", function () {\r",
+                      "    pm.response.to.have.status(404);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a propriedade message\", function () {\r",
+                      "    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "const expectMessage = \"Usuário não encontrado\".toLowerCase()\r",
+                      "pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(expectMessage);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{userToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Mock-Scenario",
+                    "value": "USER_NOT_FOUND",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"lucasm@gmail.com\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/send-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "send-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Enviar recovery code  sem passar o email",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a propriedade message\", function () {\r",
+                      "    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "const expectMessage = \"Email é obrigatório\".toLowerCase();\r",
+                      "pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include(expectMessage);\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/send-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "send-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Validação de Recovery Code",
+          "item": [
+            {
+              "name": "Validar Recovery Code com código invalido",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a propriedade message\", function () {\r",
+                      "    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include((\"código de recuperação inválido\"));\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"userEmail\": \"lucasm241301@gmail.com\",\r\n    \"recoveryCode\": \"220Sdz\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/validate-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "validate-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Validar Recovery Code com email invalido",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a propriedade message\", function () {\r",
+                      "    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include((\"Email deve ser um email válido\").toLowerCase());\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"userEmail\": \"lucasm2413il.com\",\r\n    \"recoveryCode\": \"F8Eiyo\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/validate-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "validate-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Validar Recovery Code com email não cadastrado",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a propriedade message\", function () {\r",
+                      "    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include((\"Código de recuperação inválido\").toLowerCase());\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"userEmail\": \"teste1234@gmail.com\",\r\n    \"recoveryCode\": \"F8Eiyo\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/validate-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "validate-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Validar Recovery Code sem passar email",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "\r",
+                      "pm.test(\"Deve validar a propriedade message\", function () {\r",
+                      "    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include((\"Email é obrigatório\").toLowerCase());\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"recoveryCode\": \"220Sdz\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/validate-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "validate-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Validar Recovery Code com código valido",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "function use(fnName) {\r",
+                      "    const raw = pm.collectionVariables.get(fnName);\r",
+                      "    if (!raw) throw new Error(`Função não encontrada: ${fnName}`);\r",
+                      "    return eval(`(${raw})`);\r",
+                      "}\r",
+                      "const deleteSimpleUserRequest = use(\"deleteSimpleUserRequest\");\r",
+                      "\r",
+                      "if (pm.collectionVariables.get(\"api_env\") !== \"production\") {\r",
+                      "    pm.test(\"Status code deve ser 200\", function () {\r",
+                      "        pm.response.to.have.status(200);\r",
+                      "    });\r",
+                      "\r",
+                      "    pm.test(\"Deve validar a propriedade message\", function () {\r",
+                      "        pm.expect(pm.response.json()).to.have.property(\"message\");\r",
+                      "    });\r",
+                      "\r",
+                      "    pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
+                      "        pm.expect(pm.response.text()).to.include((\"Código de recuperação válido\"));\r",
+                      "    });\r",
+                      "} else {\r",
+                      "    console.warn(\"Não é possível testar em produção\")\r",
+                      "}\r",
+                      "\r",
+                      "deleteSimpleUserRequest(pm.collectionVariables.get(\"userTokenToRecoveryCode\"), pm.collectionVariables.get(\"userIdToRecoveryCode\"))"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      "function use(fnName) {\r",
+                      "    const raw = pm.collectionVariables.get(fnName);\r",
+                      "    if (!raw) throw new Error(`Função não encontrada: ${fnName}`);\r",
+                      "    return eval(`(${raw})`);\r",
+                      "}\r",
+                      "\r",
+                      "const createSimpleUserRequest = use('createSimpleUserRequest');\r",
+                      "const sendRecoveryCodeRequest = use('sendRecoveryCodeRequest');\r",
+                      "\r",
+                      "createSimpleUserRequest()\r",
+                      "const emailToRecoveryCode = pm.collectionVariables.get(\"emailToRecoveryCode\")\r",
+                      "sendRecoveryCodeRequest(emailToRecoveryCode, \"SUCCESS_GET_USER\")"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"userEmail\": \"{{emailToRecoveryCode}}\",\r\n    \"recoveryCode\": \"{{recoveryCode}}\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/validate-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "validate-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Validar Recovery Code sem passar código",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 400\", function () {\r",
+                      "    pm.response.to.have.status(400);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a propriedade message\", function () {\r",
+                      "    pm.expect(pm.response.json()).to.have.property(\"message\");\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Deve validar a mensagem de retorno\", function () {\r",
+                      "    pm.expect(pm.response.text()).to.include((\"recovery code é obrigatório\"));\r",
+                      "});"
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"userEmail\": \"lucasm241301@gmail.com\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/validate-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "validate-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {},
+                "exec": [
+                  ""
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {},
+            "exec": [
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "smoke",
+      "item": [
+        {
+          "name": "functional-smoke",
+          "item": [
+            {
+              "name": "Enviar recovery code (sanity)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Mensagem indica envio do código\", function () {\r",
+                      "    const body = pm.response.json();\r",
+                      "    pm.expect(body.message.toLowerCase())\r",
+                      "        .to.match(/recupera(ç|c)ão.*enviado/);\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Mock-Scenario",
+                    "value": "SUCCESS_GET_USER",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"teste123@gmail.com\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/send-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "send-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "security-smoke",
+          "item": [
+            {
+              "name": "Não expõe recovery code em PRODUCTION",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test(\"Status code deve ser 200\", function () {\r",
+                      "    pm.response.to.have.status(200);\r",
+                      "});\r",
+                      "\r",
+                      "pm.test(\"Não deve expor recoveryCode em ambiente production\", function () {\r",
+                      "    const body = pm.response.json();\r",
+                      "    pm.expect(body).to.not.have.property(\"recoveryCode\");\r",
+                      "});\r",
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                },
+                {
+                  "listen": "prerequest",
+                  "script": {
+                    "exec": [
+                      ""
+                    ],
+                    "type": "text/javascript",
+                    "packages": {},
+                    "requests": {}
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "X-Mock-Scenario",
+                    "value": "SUCCESS_GET_USER",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\": \"{{emailSecurityTest}}\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{email_service_url}}/send-recovery-code",
+                  "host": [
+                    "{{email_service_url}}"
+                  ],
+                  "path": [
+                    "send-recovery-code"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          "function use(fnName) {\r",
+          "    const raw = pm.collectionVariables.get(fnName);\r",
+          "    if (!raw) throw new Error(`Função não encontrada: ${fnName}`);\r",
+          "    return eval(`(${raw})`);\r",
+          "}\r",
+          "\r",
+          "const emailsToTest = [\r",
+          "    \"fidelis.lucasm@gmail.com\",\r",
+          "    \"fidelis.lucas@aluno.uepb.edu.br\"\r",
+          "]\r",
+          "\r",
+          "pm.collectionVariables.set(\"emailsToTest\", JSON.stringify(emailsToTest));\r",
+          "\r",
+          "function sendRecoveryCodeRequest(email, scenario) {\r",
+          "    pm.sendRequest({\r",
+          "        url: `${pm.environment.get(\"email_service_url\")}/send-recovery-code`,\r",
+          "        method: \"POST\",\r",
+          "        header: {\r",
+          "            \"Content-Type\": \"application/json\",\r",
+          "            ...(pm.environment.get(\"useMock\") === \"true\" && scenario\r",
+          "                ? { \"x-mock-scenario\": scenario }\r",
+          "                : {})\r",
+          "        },\r",
+          "        body: {\r",
+          "            mode: \"raw\",\r",
+          "            raw: JSON.stringify({ email }),\r",
+          "            options: {\r",
+          "                raw: {\r",
+          "                    language: \"json\"\r",
+          "                }\r",
+          "            }\r",
+          "        }\r",
+          "    }, (err, res) => {\r",
+          "        const json = res.json();\r",
+          "        pm.collectionVariables.set(\"emailToRecoveryCode\", email);\r",
+          "        if (json?.recoveryCode) {\r",
+          "            pm.collectionVariables.set(\"recoveryCode\", json.recoveryCode);\r",
+          "        }\r",
+          "    })\r",
+          "}\r",
+          "\r",
+          "function createSimpleUserRequest(attempt = 1) {\r",
+          "    const password = \"Password@123\"\r",
+          "    const emails = JSON.parse(pm.collectionVariables.get(\"emailsToTest\"));\r",
+          "    const email = emails[Math.floor(Math.random() * emails.length)]\r",
+          "    console.log(email)\r",
+          "\r",
+          "    if (pm.environment.get(\"useMock\") === \"true\") {\r",
+          "        console.log(\"🟡 Modo mock ativo — pulando criação real de usuário\");\r",
+          "\r",
+          "        pm.collectionVariables.set(\"emailToRecoveryCode\", email);\r",
+          "\r",
+          "        return;\r",
+          "    }\r",
+          "\r",
+          "    // Limite de tentativas\r",
+          "    if (attempt > 5) {\r",
+          "        console.error(\"❌ Não foi possível criar usuário após 5 tentativas.\");\r",
+          "        return;\r",
+          "    }\r",
+          "\r",
+          "    console.log(`🔄 Tentativa ${attempt} de criar usuário simples...`);\r",
+          "\r",
+          "    pm.sendRequest(\r",
+          "        {\r",
+          "            url: pm.environment.get(\"user_service_url\"),\r",
+          "            method: \"POST\",\r",
+          "            header: { \"Content-Type\": \"application/json\" },\r",
+          "            body: {\r",
+          "                mode: \"raw\",\r",
+          "                raw: JSON.stringify({\r",
+          "                    firstName: pm.variables.replaceIn(\"{{$randomWord}}\"),\r",
+          "                    lastName: `${pm.variables.replaceIn(\"{{$randomWord}}\")} ${pm.variables.replaceIn(\"{{$randomWord}}\")}`,\r",
+          "                    email,\r",
+          "                    password,\r",
+          "                }),\r",
+          "            },\r",
+          "        },\r",
+          "        (err, res) => {\r",
+          "            if (err) {\r",
+          "                console.warn(`⚠ Erro na tentativa ${attempt}, tentando novamente...`);\r",
+          "                return createSimpleUserRequest(attempt + 1);\r",
+          "            }\r",
+          "\r",
+          "            const json = res.json();\r",
+          "            if (json?.userId) {\r",
+          "                pm.collectionVariables.set(\"userTokenToRecoveryCode\", json.userToken);\r",
+          "                pm.collectionVariables.set(\"userIdToRecoveryCode\", json.userId);\r",
+          "                pm.collectionVariables.set(\"emailToRecoveryCode\", json.email);\r",
+          "                return\r",
+          "            }\r",
+          "            // Tentativa falhou mesmo sem erro → repetir\r",
+          "            console.warn(`⚠ Tentativa ${attempt} falhou, tentando novamente...`);\r",
+          "            return createSimpleUserRequest(attempt + 1);\r",
+          "        }\r",
+          "    );\r",
+          "}\r",
+          "\r",
+          "function deleteSimpleUserRequest(token, userId) {\r",
+          "    if (pm.environment.get(\"useMock\") === \"true\") {\r",
+          "        console.log(\"🟡 Modo mock ativo — pulando delete de usuário\");\r",
+          "        return;\r",
+          "    }\r",
+          "    if (!token || !userId) {\r",
+          "        console.warn(\"⚠ Token ou userId não informado — ignorando\");\r",
+          "        return;\r",
+          "    }\r",
+          "\r",
+          "    pm.sendRequest(\r",
+          "        {\r",
+          "            url: `${pm.environment.get(\"user_service_url\")}?userId=${userId}`,\r",
+          "            method: \"DELETE\",\r",
+          "            header: {\r",
+          "                \"Authorization\": `Bearer ${token}`,\r",
+          "            },\r",
+          "        },\r",
+          "        (err, res) => {\r",
+          "            if (err) {\r",
+          "                console.error(\"❌ Erro no DELETE:\", err);\r",
+          "                return;\r",
+          "            }\r",
+          "            pm.collectionVariables.unset(\"userRecentCadastreId\");\r",
+          "            pm.collectionVariables.unset(\"userRecentCadastreEmail\");\r",
+          "            pm.collectionVariables.unset(\"userRecentCadastrePassword\");\r",
+          "            pm.collectionVariables.unset(\"userRecentCadastreToken\");\r",
+          "        }\r",
+          "    );\r",
+          "}\r",
+          "\r",
+          "pm.collectionVariables.set(sendRecoveryCodeRequest.name, sendRecoveryCodeRequest.toString())\r",
+          "pm.collectionVariables.set(createSimpleUserRequest.name, createSimpleUserRequest.toString())\r",
+          "pm.collectionVariables.set(deleteSimpleUserRequest.name, deleteSimpleUserRequest.toString())"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          "// Detecta ambiente\r",
+          "pm.collectionVariables.set(\r",
+          "  \"api_env\",\r",
+          "  pm.response.headers.get(\"email-service-environment\") || \"development\"\r",
+          ");"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "sendRecoveryCodeRequest",
+      "value": ""
+    },
+    {
+      "key": "createSimpleUserRequest",
+      "value": ""
+    },
+    {
+      "key": "deleteSimpleUserRequest",
+      "value": ""
+    },
+    {
+      "key": "emailsToTest",
+      "value": ""
+    },
+    {
+      "key": "api_env",
+      "value": ""
+    },
+    {
+      "key": "emailToTest",
+      "value": ""
+    },
+    {
+      "key": "emailToRecoveryCode",
+      "value": ""
+    },
+    {
+      "key": "userTokenToRecoveryCode",
+      "value": ""
+    },
+    {
+      "key": "userIdToRecoveryCode",
+      "value": ""
+    },
+    {
+      "key": "recoveryCode",
+      "value": ""
+    }
+  ]
 }
