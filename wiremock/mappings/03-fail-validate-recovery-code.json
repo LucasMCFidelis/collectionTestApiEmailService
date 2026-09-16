@@ -1,0 +1,18 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "POST",
+    "url": "/emails/validate-recovery-code",
+    "headers": {
+      "X-Mock-Scenario": {
+        "equalTo": "FAIL_VALIDATE_RECOVERY_CODE"
+      }
+    }
+  },
+  "response": {
+    "status": 400,
+    "jsonBody": {
+      "message": "Código de recuperação expirado"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "priority": 100,
+  "request": {
+    "method": "POST",
+    "url": "/users/validate-credentials"
+  },
+  "response": {
+    "status": 500,
+    "jsonBody": {
+      "error": "Mock error",
+      "message": "Scenario not defined"
+    }
+  }
+}
