@@ -1,8 +1,8 @@
 {
   "priority": 100,
   "request": {
-    "method": "POST",
-    "url": "/users/validate-credentials"
+    "method": "ANY",
+    "url": "/emails/*"
   },
   "response": {
     "status": 500,

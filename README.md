@@ -2,6 +2,30 @@
 
 Collection do Postman para testes de integração (end-to-end) do **EmailService** do projeto *Catálogo de Eventos*. A collection cobre os fluxos de **envio de código de recuperação de senha** e **validação do código**, incluindo cenários de sucesso, erros de validação e testes smoke (funcional e de segurança).
 
+Além da collection, este repositório também hospeda os **mappings do WireMock que simulam o EmailService** (pasta `wiremock/`), reaproveitados pela collection de testes do [`userService`](https://github.com/LucasMCFidelis/collectionTestApiUserService) para testar o fluxo de atualização de senha sem depender do EmailService real — no mesmo padrão em que o `collectionTestApiUserService` fornece os mocks do UserService para o `auth-service` e para este próprio repositório.
+
+---
+
+## 📁 Estrutura
+
+```
+collectionTestApiEmailService/
+├── postman/
+│   ├── collections/
+│   │   └── email-service.postman_collection.json
+│   └── environments/
+│       ├── ci.environment.json
+│       ├── local-mock.environment.json
+│       ├── local-real.environment.json
+│       └── production-like.environment.json
+└── wiremock/
+    └── mappings/
+        ├── 00-fallback.json
+        ├── 01-validate-recovery-code.json
+        ├── 02-send-recovery-code.json
+        └── 03-fail-validate-recovery-code.json
+```
+
 ---
 
 ## ▶️ Como executar
@@ -145,7 +169,27 @@ Além disso, o **test script da collection** roda após cada request e detecta o
 
 ---
 
-## 🌎 Ambientes disponíveis
+## 🧩 Mocks do EmailService (WireMock)
+
+Assim como o `collectionTestApiUserService` mantém mappings que simulam o UserService, este repositório mantém os mappings que simulam o **EmailService**, consumidos pela collection do [`userService`](https://github.com/LucasMCFidelis/collectionTestApiUserService) — especificamente pelo fluxo de **atualização de senha**, que depende de um código de recuperação gerado pelo EmailService antes de poder trocar a senha do usuário.
+
+| Arquivo | Endpoint simulado | `X-Mock-Scenario` | Resposta |
+|---|---|---|---|
+| `01-validate-recovery-code.json` | `POST /emails/validate-recovery-code` | `SUCCESS_VALIDATE_RECOVERY_CODE` | `200` — "Código de recuperação válido" |
+| `02-send-recovery-code.json` | `POST /emails/send-recovery-code` | `SUCCESS_SEND_RECOVERY_CODE` | `200` — retorna `message` de sucesso e um `recoveryCode` fixo (`aaww11`) |
+| `03-fail-validate-recovery-code.json` | `POST /emails/validate-recovery-code` | `FAIL_VALIDATE_RECOVERY_CODE` | `400` — "Código de recuperação expirado" |
+
+### Subindo o mock isoladamente
+
+```bash
+docker run -d --name wiremock-email-service -p 8090:8080 \
+  -v "$(pwd)/wiremock:/home/wiremock" \
+  wiremock/wiremock
+```
+
+Isso expõe o mock em `http://localhost:8090` (porta escolhida livremente — só não pode colidir com a porta `8089` já usada pelo mock do UserService quando os dois rodam juntos). Depois, basta apontar a variável de URL do EmailService do serviço/collection sendo testado para esse endereço e enviar o header `X-Mock-Scenario` desejado.
+
+---
 
 | Ambiente | Arquivo | `useMock` | Uso recomendado |
 |---|---|---|---|
