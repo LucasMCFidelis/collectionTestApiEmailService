@@ -1,6 +1,6 @@
 {
   "id": "ci-env",
-  "name": "CI Environment",
+  "name": "CI Environment - emailService",
   "values": [
     {
       "key": "email_service_url",
