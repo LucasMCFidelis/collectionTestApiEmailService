@@ -6,45 +6,71 @@ Além da collection, este repositório também hospeda os **mappings do WireMock
 
 ---
 
-## 📁 Estrutura
-
-```
-collectionTestApiEmailService/
-├── postman/
-│   ├── collections/
-│   │   └── email-service.postman_collection.json
-│   └── environments/
-│       ├── ci.environment.json
-│       ├── local-mock.environment.json
-│       ├── local-real.environment.json
-│       └── production-like.environment.json
-└── wiremock/
-    └── mappings/
-        ├── 00-fallback.json
-        ├── 01-validate-recovery-code.json
-        ├── 02-send-recovery-code.json
-        └── 03-fail-validate-recovery-code.json
-```
-
----
-
 ## ▶️ Como executar
+
+Essa collection é usada de duas formas: **automaticamente**, dentro do `docker compose` do serviço testado, ou **manualmente**, via Postman/Newman, para depurar um cenário específico. Veja a seção [🌎 Ambientes disponíveis](#-ambientes-disponíveis) para saber qual environment usar em cada caso.
+
+Para rodar manualmente — seja pelo Postman, seja pelo Newman — primeiro suba o ambiente de teste do EmailService via `docker compose`, no repositório do serviço, [`email-service-eventsCatalog-`](https://github.com/LucasMCFidelis/email-service-eventsCatalog-) — é lá que estão as instruções detalhadas de setup, profiles e variáveis de ambiente:
+
+```bash
+docker compose --profile test up --build -d
+```
+
+Isso builda este repositório internamente e já roda as pastas `functional-smoke` + `recovery` automaticamente (contra `ci.environment.json`), mas mantém o EmailService e o mock do UserService publicados nas portas padrão do host (`8083`/`8081`) enquanto os containers estiverem de pé — é contra essas portas que o environment `local` aponta, usado abaixo em ambas as opções.
+
+Para rodar a pasta **`security-smoke`** manualmente de um jeito que o teste "não expõe recovery code" valide de verdade o comportamento de produção, suba o profile `like-prod` em vez de `test`:
+
+```bash
+START_SCRIPT=start docker compose --profile like-prod up --build -d
+```
+
+Contra o profile `test` (modo `development`), esse teste específico falha de propósito — é nesse modo que o `recoveryCode` aparece na resposta. Ao terminar, encerre o ambiente com `docker compose --profile <profile> down -v` no repositório do EmailService.
+
+Clone este repositório também — é dele que vêm a collection e os environments usados nas duas opções abaixo:
+
+```bash
+git clone https://github.com/LucasMCFidelis/collectionTestApiEmailService.git
+cd collectionTestApiEmailService
+```
 
 ### Opção 1 — Postman (interface gráfica)
 1. Importe a collection em `postman/collections/email-service.postman_collection.json`.
-2. Importe o(s) environment(s) desejado(s) em `postman/environments/`.
+2. Importe o(s) environment(s) desejado(s) em `postman/environments/` (`local.environment.json` e/ou `ci.environment.json`).
 3. Selecione o environment no canto superior direito do Postman.
-4. Preencha as variáveis obrigatórias (ver seção [Variáveis](#️-variáveis-necessárias-para-executar-a-collection) abaixo).
-5. Execute a collection inteira via **Runner**, ou cada request individualmente.
+4. Preencha as variáveis obrigatórias (ver seção [Variáveis](#️-variáveis-necessárias-para-executar-a-collection) abaixo) — os dois environments já vêm preenchidos por padrão, incluindo `emailSecurityTest`.
+5. Execute a collection inteira via **Runner**, ou cada request/pasta individualmente.
 
-### Opção 2 — Newman (linha de comando / CI)
+### Opção 2 — Newman (linha de comando)
+
+Com o `docker compose` já rodando e o repositório clonado, aponte o Newman direto para o environment `local`:
+
 ```bash
 npm install -g newman
 
 newman run postman/collections/email-service.postman_collection.json \
-  -e postman/environments/local-mock.environment.json
+  -e postman/environments/local.environment.json
 ```
-Basta trocar o arquivo de environment (`-e`) para rodar contra outro ambiente (`local-real`, `ci` ou `production-like`).
+
+Para rodar só uma pasta específica — por exemplo, o smoke de segurança, que precisa do profile `like-prod` ativo (`emailSecurityTest` já vem definido no environment `local`, não precisa passar `--env-var`):
+
+```bash
+newman run postman/collections/email-service.postman_collection.json \
+  -e postman/environments/local.environment.json \
+  --folder security-smoke
+```
+
+---
+
+## 🌎 Ambientes disponíveis
+
+Só existem **dois** arquivos de environment neste repositório — mantidos deliberadamente enxutos, um para cada forma de execução:
+
+| Ambiente | Arquivo | `email_service_url` | `user_service_url` | Quando usar |
+|---|---|---|---|---|
+| **Local** | `postman/environments/local.environment.json` | `http://localhost:8083/emails` | `http://localhost:8081/users` | Rodar a collection manualmente (Postman ou Newman), com o `docker compose` do EmailService já rodando na máquina (portas padrão do host). Ideal para depurar um cenário específico sem esperar o CI. |
+| **CI** | `postman/environments/ci.environment.json` | `http://email-service:8080/emails` | `http://user-service:8080/users` | Uso interno, automático: é o environment que o próprio `docker compose` do EmailService injeta nos containers `tests-functional`/`tests-security`. Os hostnames são os *aliases* de rede dos serviços dentro do Compose, não `localhost` — porta interna sempre `8080`. Normalmente você não precisa selecionar esse environment manualmente. |
+
+Os dois já vêm com `useMock="true"` e `emailSecurityTest` preenchido — como os dois environments só rodam contra o ambiente de teste (mockado), não há risco em manter um e-mail de teste fixo neles. Não é preciso configurar nada manualmente para rodar a collection, seja localmente, seja no CI.
 
 ---
 
@@ -58,8 +84,8 @@ Para que esta collection funcione corretamente no Postman, configure as seguinte
 
 | Variável            | Descrição                                              |
 |---------------------|-----------------------------------------------------------|
-| `email_service_url` | URL base do EmailService (ex.: `http://localhost:3000/emails`) |
-| `user_service_url`  | URL base do UserService, usado para criar/remover o usuário de teste (ex.: `http://localhost:8089/users`) |
+| `email_service_url` | URL base do EmailService (porta padrão local: `http://localhost:8083/emails`) |
+| `user_service_url`  | URL base do UserService, usado para criar/remover o usuário de teste (porta padrão local: `http://localhost:8081/users`) |
 
 ---
 
@@ -80,7 +106,7 @@ Quando `useMock` é `"true"`:
 
 | Variável            | Descrição                                                                 |
 |---------------------|-------------------------------------------------------------------------------|
-| `emailSecurityTest` | E-mail usado apenas pelo teste **"Não expõe recovery code em PRODUCTION"** (pasta `smoke/security-smoke`). Não vem definida em nenhum environment — precisa ser configurada manualmente antes de rodar esse teste. |
+| `emailSecurityTest` | E-mail usado apenas pelo teste **"Não expõe recovery code em PRODUCTION"** (pasta `smoke/security-smoke`). Já vem preenchido com um e-mail fixo nos environments `local` e `ci` — como ambos só rodam contra o ambiente de teste mockado, não há risco em mantê-lo fixo. Ajuste apenas se quiser usar um e-mail diferente. |
 
 ---
 
@@ -107,7 +133,8 @@ Essas variáveis são criadas e atualizadas automaticamente pelos scripts da col
 - `email_service_url`
 - `user_service_url`
 - `useMock`
-- `emailSecurityTest` *(apenas para o teste de segurança)*
+
+> `emailSecurityTest` já vem preenchido em ambos os environments — só precisa ser ajustado se você quiser usar outro e-mail.
 
 ### 🤖 Variáveis gerenciadas automaticamente pelos scripts:
 - `emailToRecoveryCode`
@@ -181,19 +208,12 @@ Assim como o `collectionTestApiUserService` mantém mappings que simulam o UserS
 
 ### Subindo o mock isoladamente
 
+Use a imagem buildada a partir do `docker/mock.Dockerfile` deste repositório — os mappings já ficam embutidos na imagem (`COPY wiremock /home/wiremock`), sem precisar de bind-mount:
+
 ```bash
-docker run -d --name wiremock-email-service -p 8090:8080 \
-  -v "$(pwd)/wiremock:/home/wiremock" \
-  wiremock/wiremock
+docker build -f docker/mock.Dockerfile -t email-service-mock .
+
+docker run -d --name wiremock-email-service -p 8083:8080 email-service-mock
 ```
 
-Isso expõe o mock em `http://localhost:8090` (porta escolhida livremente — só não pode colidir com a porta `8089` já usada pelo mock do UserService quando os dois rodam juntos). Depois, basta apontar a variável de URL do EmailService do serviço/collection sendo testado para esse endereço e enviar o header `X-Mock-Scenario` desejado.
-
----
-
-| Ambiente | Arquivo | `useMock` | Uso recomendado |
-|---|---|---|---|
-| Local Mock | `local-mock.environment.json` | `true` | Rodar os testes localmente sem depender do UserService real |
-| Local Real Integration | `local-real.environment.json` | `false` | Rodar os testes localmente contra os serviços reais em execução na máquina |
-| CI Environment | `ci.environment.json` | `true` | Execução automatizada em pipelines de integração contínua |
-| Production Like | `production-like.environment.json` | `true` | Testes smoke/segurança contra um ambiente equivalente à produção, sem expor dados reais |
+Isso expõe o mock em `http://localhost:8083` (porta padrão utilizada no projeto para o EmailService, já configurada no environment `local`). Depois, basta apontar a variável de URL do EmailService do serviço/collection sendo testado para esse endereço e enviar o header `X-Mock-Scenario` desejado.

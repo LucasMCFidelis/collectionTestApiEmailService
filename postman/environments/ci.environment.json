@@ -16,6 +16,11 @@
       "key": "useMock",
       "value": "true",
       "enabled": true
+    }, 
+    {
+      "key": "emailSecurityTest",
+      "value": "test@security.com",
+      "enabled": true
     }
   ]
 }
